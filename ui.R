@@ -33,8 +33,10 @@ shinyUI(fluidPage(
                 The literature suggests that about 50% of Tanzanian breast 
                 cancers are ER positive.'),
              # Incidence
-             numericInput('incidence', label='Annual incidence per 100,000', 
-                          60, min = 0, max = 100000, step = NA, 
+             uiOutput('chooseInc'),
+             uiOutput('chooseMort'),
+             sliderInput('agerange', label='Age range of the population',
+                          value=c(30, 49), min=0, max=100, step=1, 
                           width = NULL),
              # Percent ER+
              sliderInput("prop_ERpos", label = "Percent ER positive",
@@ -193,7 +195,8 @@ shinyUI(fluidPage(
              ),
     "Results",
     tabPanel("Results Tables",
-#              verbatimTextOutput('debug'),
+#            verbatimTextOutput('debug'),
+#            tableOutput('debug'),
              h4('Results after 5 years'),
              tableOutput('resultsTable1'),
              br(),
@@ -202,7 +205,7 @@ shinyUI(fluidPage(
              ),
     tabPanel("Results Plots",
              h4('Percent Surviving'),
-              plotOutput('resultsGraph')
+             plotOutput('resultsGraph')
              )
   )
 ))
