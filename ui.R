@@ -2,23 +2,22 @@ library(shiny)
 
 shinyUI(fluidPage(
   
-  titlePanel("Welcome to the cancer early detection and treatment impact model"),
+  titlePanel("Welcome to the breast cancer early detection and treatment impact model"),
   
   navlistPanel(
     tabPanel("Introduction",
              h4('Overview'),
              p('This interface allows you to model the survival benefit of a 
-                screening and/or treatment intervention in a population of your choosing. 
+                screening and/or treatment intervention in a virtual population of your choosing. 
                 The model posits a simple stage-shift mechanism of screening benefit. 
                 Specify inputs using the navigation sidebar.'),
-             h4('Default Model: Breast Cancer in Tanzania'),
-             p('The input defaults reflect an breast cancer example in Tanzania:'),
+             br(),
+             h4('Default Model: Breast Cancer in East Africa'),
+             p('The input defaults reflect an breast cancer example in East Africa:'),
              h5('Standard of Care: "Control" Scenario'),
-             p('Because chemotherapy treatment is logistically and financially difficult
-                in Tanzania, women typically either receive no adjuvant treatment (80%) or
-                endocrine therapy (20%). However, the endocrine therapy is not targeted to the 50% of 
-                women who are ER+. This means that some ER- receive endocrine therapy and but do
-               not benefit from it.'),
+             p('Because adjuvant treatment is logistically and financially difficult
+                in East Africa, women are often not treated after surgery. Accordingly, in
+                the Control scenario, there is no adjuvant treatment.'),
              h5('Standard of Care: "Intervention" Scenario'),
              p('The intervention modeled is ER screening, which leads to endocrine therapy being
                administered only to the 50% of women who are ER+. All of these women
@@ -26,35 +25,44 @@ shinyUI(fluidPage(
     ),
     "Natural History",
     tabPanel("Cancer Incidence",
-             h4('Enter the expected annual incidence per 100,000 women and the percent 
-                  of cancers that are ER positive.'),
-             p('Annual incidence in Tanzania is patterned after Uganda, 
+             h4('Select incidence and all-cause mortality databases and an age range, 
+                and specify the percent of cancers that are ER positive.'),
+             p('Annual incidence in East Africa is patterned after Uganda, 
                 where there are about 60 cases per year among 100,000 women ages 30-49. 
-                The literature suggests that about 50% of Tanzanian breast 
+                The literature suggests that about 41% of East African breast 
                 cancers are ER positive.'),
+             br(),
              # Incidence
              uiOutput('chooseInc'),
+             em('Source: CI5-X Incidence Database'),
+             a('http://ci5.iarc.fr/CI5-X/'),
+             br(), br(),
              uiOutput('chooseMort'),
+             em('Source: IHME 2013 Lifetable Estimates'), 
+             a('http://ghdx.healthdata.org/global-burden-disease-study-2013-gbd-2013-data-downloads'),
+             br(), br(),
              sliderInput('agerange', label='Age range of the population',
                           value=c(30, 49), min=0, max=100, step=1, 
                           width = NULL),
+             br(),
              # Percent ER+
              sliderInput("prop_ERpos", label = "Percent ER positive",
-                         min=0, max=100, step=1, value=50)
+                         min=0, max=100, step=1, value=41)
              ),
     tabPanel("Stage-Specific Survival",
               h4('Select a year, k, by which you will specify the percent of cases 
-                surviving at k years after diagnosis, or "baseline survival."'),
+                surviving at k years after diagnosis, or "baseline survival"'),
               p('Baseline survival should typically be survival in the absence of 
                 systemic treatment, but it can be treated survival if the 
                 intervention does not impact treatment. You must specify k-year 
                 survival for advanced- and early-stage cases separately.'),
-              p('Data from Uganda suggest that advanced-stage cases in Tanzania may 
+              p('Data from Uganda suggest that advanced-stage cases may 
                 have a 5-year survival rate of 35%. Given the low incidence of 
-                early-stage cancer in Tanzania and similar countries, survival data 
+                early-stage cancer in East Africa, survival data 
                 are sparse for early stage cases. We approximate early-stage survival 
                 using historical data from the US in the 1940s, which puts 5-year survival 
                 of localized cases at 80%.'),
+             br(),
              selectInput('year.surv', label='Year of survival statistic, k', 
                          choices=c(5,10), selected=5),
              
@@ -73,29 +81,31 @@ shinyUI(fluidPage(
                 decrease due to early detection efforts.'),
               p('The default intervention involves no formal early detection strategy,
                 only changes to the treatments available (see next two panels).'),
+             br(),
              # Percent advanced
               h5('CONTROL SCENARIO'),
              sliderInput("prop_a0", label = "Percent advanced",
-                         min=0, max=100, step=1, value=85),
+                         min=0, max=100, step=1, value=78),
              # Percent advanced
               h5('INTERVENTION SCENARIO'),
              sliderInput("prop_a1", label = "Percent advanced",
-                         min=0, max=100, step=1, value=85)
+                         min=0, max=100, step=1, value=78),
+             h5('SUMMARY OF SELECTED VALUES'),
+             tableOutput('edsummary')
              ),
     "Treatments Available",
     tabPanel("Control Scenario",
               h4('Specify who is eligible for each treatment, 
                 and what percent of eligible cases receive it.'),
-              p('The current standard of care in Tanzania is that about 20% of all women 
-                  receive endocrine therapy, even though only the cases who are 
-                  estrogen-receptor positive (ER+) can actually benefit from it.'),
+              p('Adjuvant treatment is rare in East Africa, so 
+                we model no treatment for the Control Scenario.'),
               br(),
               h5('ENDOCRINE THERAPY'),
               radioButtons("tam.elig.control", "Who is eligible for endocrine therapy?",
                            c("All" = 'All',
                              "ER+ only" = 'ERpos')),
               sliderInput('tam.prop.control', label='What percent of eligible women receive endocrine therapy?', 
-                          20, min = 0, max = 100, step = 1),
+                          0, min = 0, max = 100, step = 1),
               br(),
               h5('CHEMOTHERAPY'),
               radioButtons("chemo.elig.control", "Who is eligible for chemotherapy?",
@@ -135,44 +145,25 @@ shinyUI(fluidPage(
              p('The parameters specified on the previous pages are summarized below.
                To make changes, revisit the previous pages.'),
              br(),
-             h5('INCIDENCE AND TUMOR CHARACTERISTICS'),
+             h5('INCIDENCE AND ALL-CAUSE MORTALITY SELECTIONS'),
+             p('Forthcoming'),
+             h5('TUMOR CHARACTERISTICS'),
              tableOutput('paramsum1'),
              br(),
              h5('ADVANCED-STAGE TREATMENTS'),
              em('Values represent percents falling into each group. Columns
-                should sum to 100% across both ER types'),
+                should sum to 100% within each ER type'),
              tableOutput('paramsum2'),
              br(),
              h5('EARLY-STAGE TREATMENTS'),
              em('Values represent percents falling into each group. Columns
-                should sum to 100% across both ER types'),
-             tableOutput('paramsum3'),
-
-             br(), br(), br(), br(), br(), br(),
-             h4('ADVANCED CONTROLS - DO NOT EDIT'),
-             ## Can bring back the displays below to regain control beyond
-             ## what is allowed in the user options on previous tabs
-             br(),
-#             h5('TUMOR-TREATMENT GROUPS'),
-             textInput('treat.vec', 'Treatment names (separate by commas)', 
-                        'ERneg.Tam, ERneg.Chemo, ERneg.None,
-                        ERpos.TamChemo, ERpos.Tam, ERpos.Chemo, ERpos.None'
-             ),
-             br(),
-#             h5('EFFICACIES BY TUMOR-TREATMENT GROUP'),
-             textInput('treat.hr', 'Treatment hazard ratios (separated by commas)', 
-                       '1, 0.775, 1, 0.5425, 0.7, 0.775, 1'
-                       ),
-             br(),
-#             h5('CONTROL TREATMENT PROPORTIONS'),
-             uiOutput('a0t'),
-             uiOutput('e0t'),
-             br(),
-#             h5('INTERVENTION TREATMENT PROPORTIONS'),
-             uiOutput('a1t'),
-             uiOutput('e1t')
+                should sum to 100% within each ER type'),
+             tableOutput('paramsum3')
              ),
     tabPanel("Fixed Parameters",
+             h4('Virtual population size and simulations'),
+             p('The virtual population contains 100,000 women. Results reported are the average over 
+               10 simulations.'),
              h4('The benefits of treatments are sourced from the literature'),
              p('Meta-analyses from the Early Breast Cancer Trialists Collaborative Group
                have summarized the benefits of endocrine therapy and chemotherapy across
@@ -195,16 +186,40 @@ shinyUI(fluidPage(
              ),
     "Results",
     tabPanel("Results Tables",
+             # This accesses the stylesheet, which just sets a 
+             # location for the progress bar. Thanks to:
+             # https://groups.google.com/forum/#!topic/shiny-discuss/VzGkfPqLWkY 
+             # and https://github.com/johndharrison/Seed
+             tags$head(
+                tags$link(rel='stylesheet', type='text/css', href='styles.css'),
+                tags$script(type="text/javascript", src="busy.js")
+             ),
+             h5('Results will appear when simulations are complete. 
+                Expected wait time is approximately 2 minutes.'),
+             em('Results are reported as statistics per 100,000 women'),
+
+                    div(class = "busy",
+                             p("Calculation in progress..."),
+                                  img(src="ajax-loader.gif")
+                                 ),
+
 #            verbatimTextOutput('debug'),
 #            tableOutput('debug'),
              h4('Results after 5 years'),
-             tableOutput('resultsTable1'),
+             textOutput('caption5'),
+             tableOutput('resultsTable5'),
              br(),
              h4('Results after 10 years'),
-             tableOutput('resultsTable2')
+             textOutput('caption10'),
+             tableOutput('resultsTable10'),
+             br(),
+             h4('Results after 20 years'),
+             textOutput('caption20'),
+             tableOutput('resultsTable20')
              ),
     tabPanel("Results Plots",
-             h4('Percent Surviving'),
+             h4('Among incident cases, percent surviving'),
+             p('x-axis shows the year of follow-up. Orange indicates gains from the intervention.'),
              plotOutput('resultsGraph')
              )
   )

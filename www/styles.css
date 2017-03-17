@@ -1,0 +1,68 @@
+
+div.busy {
+    position: fixed;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%);
+    /*
+    position:fixed;
+    top: 40%;
+    left: 50%;
+    margin-top: -100px;
+    margin-left: -50px;
+    */
+    display:none;
+    background: rgba(230, 230, 230, .8);
+    text-align: center;
+    font-size: 15px;
+    padding-top: 20px;
+    padding-left: 30px;
+    padding-bottom: 40px;
+    padding-right: 30px;
+    border-radius: 5px;
+    z-index: 50;
+}
+
+.shiny-progress .progress-text {
+    position: fixed;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%);
+
+    color: #ffffff;
+    font-size: 20px;
+    background-color: #ffffff;
+    text-align: center;
+    height: 50px;
+    width: 300px;
+    /*
+    top: 50% !important;
+    left: 50% !important;
+    margin-top: 50px !important;
+    margin-left: 30px !important;
+    */
+}
+
+/* see http://shiny.rstudio.com/articles/progress.html */
+/* full customization here: 
+ * https://github.com/rstudio/shiny/blob/515a67a/inst/www/shared/shiny.css#L94-L114
+ */
+/*
+.shiny-progress .bar {
+    background-color: #FF0000;
+    .opacity = 0.8;
+}
+.shiny-progress .progress {
+    height:7px;
+}
+*/
+
+
+/*
+h5 {
+    font-weight: 500;
+    line-height: 1.1;
+    color: #ad1d28;
+}
+*/
+
