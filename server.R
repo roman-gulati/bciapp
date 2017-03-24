@@ -1,11 +1,13 @@
 # Setup: libraries and functions
 # A note about deploying: 
-# rsconnect::deployApp('/Users/jeanette/Documents/jbirnbau/screentreatGlobal/app/', account='screeningandtreatment', appName='main')
+# rsconnect::deployApp('/Users/jeanette/Documents/jbirnbau/bciapp', account='cancerpolicy', appName='breastcancer')
 library(shiny)
+library(parallel)
 library(ggplot2)
 library(reshape2)
 library(plyr)
 source('code.R')
+#install_github('cancerpolicy/bcimodel')
 library(bcimodel)
 
 shinyServer(function(input, output, session) {
@@ -315,7 +317,7 @@ output$hazards <- renderTable({
 
 results <- reactive({
     # Using defaults for popsize, denom and futimes
-    return(simpolicies(scenarios=datain.scenarios(),
+    return(parsimpolicies(scenarios=datain.scenarios(),
                        naturalhist=datain.nh(),
                        treatinfo=datain.tx(),
                        agesource='Standard',
@@ -325,7 +327,7 @@ results <- reactive({
                        mortsource=input$mortCountry,
                        futimes=c(5,10,20),
                        returnstats=c('mean', 'lower', 'upper'),
-                       sims=10))
+                       sims=50))
 })
 
 output$caption5 <- renderText({
@@ -363,13 +365,15 @@ uncertainty <- reactive({
 
 output$uncertaintyTable5 <- renderTable({
     uncertainty()[['5']]
-}, rownames=TRUE, align='?cc')
+}, rownames = TRUE)
 output$uncertaintyTable10 <- renderTable({
     uncertainty()[['10']]
-}, rownames=TRUE, align='?cc')
+}, rownames = TRUE)
+# }, align='c', include.rownames=TRUE)
 output$uncertaintyTable20 <- renderTable({
     uncertainty()[['20']]
-}, rownames=TRUE, align='?cc')
+}, rownames = TRUE)
+# }, rownames = TRUE, align='?cc')
 
 #-------------------------------------------------------------------------------
 # Graph
