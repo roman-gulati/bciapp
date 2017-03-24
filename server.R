@@ -58,6 +58,13 @@ output$chooseMort <- renderUI({
                    options=list(maxItems=1, placeholder='Tanzania'))
 })
 
+output$inccountry <- renderText({
+    input$incCountry
+})
+output$mortcountry <- renderText({
+    input$mortCountry
+})
+
 ################################################################################
 # CONVERT FROM PERCENTS TO PROPORTIONS
 ################################################################################
@@ -303,7 +310,7 @@ output$hazards <- renderTable({
 # RESULTS
 ################################################################################
 #-------------------------------------------------------------------------------
-# Tables
+# Tables - mean
 #-------------------------------------------------------------------------------
 
 results <- reactive({
@@ -345,6 +352,24 @@ output$resultsTable10 <- renderTable({
 output$resultsTable20 <- renderTable({
     results()[['20']]$mean[2:6,]
 }, digits=2, include.rownames=TRUE)
+
+#-------------------------------------------------------------------------------
+# Tables - uncertainty
+#-------------------------------------------------------------------------------
+uncertainty <- reactive({
+    return(format_bounds_list(results(),
+                              digits=c(0,0,1,2,1,0)))
+})
+
+output$uncertaintyTable5 <- renderTable({
+    uncertainty()[['5']]
+}, rownames=TRUE, align='?cc')
+output$uncertaintyTable10 <- renderTable({
+    uncertainty()[['10']]
+}, rownames=TRUE, align='?cc')
+output$uncertaintyTable20 <- renderTable({
+    uncertainty()[['20']]
+}, rownames=TRUE, align='?cc')
 
 #-------------------------------------------------------------------------------
 # Graph

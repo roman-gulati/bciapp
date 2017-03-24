@@ -145,8 +145,11 @@ shinyUI(fluidPage(
              p('The parameters specified on the previous pages are summarized below.
                To make changes, revisit the previous pages.'),
              br(),
-             h5('INCIDENCE AND ALL-CAUSE MORTALITY SELECTIONS'),
-             p('Forthcoming'),
+             h5('INCIDENCE FROM:'),
+             textOutput('inccountry'),
+             h5('ALL-CAUSE MORTALITY FROM:'),
+             textOutput('mortcountry'),
+             br(),
              h5('TUMOR CHARACTERISTICS'),
              tableOutput('paramsum1'),
              br(),
@@ -185,7 +188,7 @@ shinyUI(fluidPage(
                 ')
              ),
     "Results",
-    tabPanel("Results Tables",
+    tabPanel("Tables",
              # This accesses the stylesheet, which just sets a 
              # location for the progress bar. Thanks to:
              # https://groups.google.com/forum/#!topic/shiny-discuss/VzGkfPqLWkY 
@@ -217,12 +220,24 @@ shinyUI(fluidPage(
              textOutput('caption20'),
              tableOutput('resultsTable20')
              ),
-    tabPanel("Results Plots",
+    tabPanel("Plots",
              h4('Among incident cases, percent surviving'),
              p('x-axis shows the year of follow-up. Orange indicates gains from the intervention.'),
              plotOutput('resultsGraph')
+             ),
+    tabPanel("Uncertainty",
+             h5('Empirical 95% uncertainty intervals'),
+             h4('Results after 5 years'),
+             tableOutput('uncertaintyTable5'),
+             br(),
+             h4('Results after 10 years'),
+             tableOutput('uncertaintyTable10'),
+             br(),
+             h4('Results after 20 years'),
+             tableOutput('uncertaintyTable20')
              )
-  )
-))
+  
+  ) # end navlistPanel
+)) # end fluidPage and shinyUI
 
 
