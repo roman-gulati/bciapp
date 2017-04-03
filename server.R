@@ -317,7 +317,7 @@ output$hazards <- renderTable({
 
 results <- reactive({
     # Using defaults for popsize, denom and futimes
-    return(parsimpolicies(scenarios=datain.scenarios(),
+    return(simpolicies(scenarios=datain.scenarios(),
                        naturalhist=datain.nh(),
                        treatinfo=datain.tx(),
                        agesource='Standard',
@@ -327,7 +327,8 @@ results <- reactive({
                        mortsource=input$mortCountry,
                        futimes=c(5,10,20),
                        returnstats=c('mean', 'lower', 'upper'),
-                       sims=50))
+                       popsize=input$popsize,
+                       sims=input$nsim))
 })
 
 output$caption5 <- renderText({

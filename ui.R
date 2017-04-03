@@ -139,6 +139,13 @@ shinyUI(fluidPage(
              sliderInput('chemo.prop.interv', label='What percent of eligible women receive chemotherapy?', 
                          0, min = 0, max = 100, step = 1)
     ),
+    "Simulation Specs",
+    tabPanel("Population and sim sizes",
+             sliderInput('popsize', label='Size of population',
+                          value=100000, min=100000, max=10000000, step=100000),
+             sliderInput("nsim", label = "Number of simulations",
+                         min=5, max=100, step=5, value=10)
+    ),
     "Parameter Summary",
     tabPanel("User-Defined Parameters",
               h4('Review the selected parameter values'),
