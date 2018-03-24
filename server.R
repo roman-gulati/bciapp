@@ -421,3 +421,127 @@ output$resultsGraph <- renderPlot({
 })
 
 
+################################################################################
+# Interactive testing to reproduce comparisons of E0 vs E4
+################################################################################
+if(FALSE){
+    prop_ERpos <- 0.41
+    surv.adv <- 0.35
+    surv.early <- 0.69
+    prop_a0 <- 0.78
+    prop_a1 <- 0.60
+    prop_s <- 1-prop_a1/prop_a0
+    tam.prop.control <- 0
+    chemo.prop.control <- 0
+    tam.prop.interv <- 1
+    chemo.prop.interv <- 0
+    m.a <- exp.rate(surv.adv, year=5)
+    m.e <- exp.rate(surv.early, year=5)
+    pol <- data.frame(num=1:2,
+                      id=c('control', 'intervention'),
+                      name=c('Control', 'Intervention'),
+                      pairnum=if(prop_s==0) c(NA, NA) else c(NA, 1),
+                      earlydetHR=c(1, 1-prop_s),
+                      stringsAsFactors=FALSE)
+    nh <- compile_naturalhist(prop_adv=prop_a0, 
+                              mortrates=c(Early=m.e, Advanced=m.a),
+                              subgroup_probs=c('ER-'=1-prop_ERpos, 'ER+'=prop_ERpos))
+    a0t <- treattumor_props(prop_ERpos, 'All', tam.prop.control, 'All', chemo.prop.control)
+    e0t <- treattumor_props(prop_ERpos, 'All', tam.prop.control, 'All', chemo.prop.control)
+    a1t <- treattumor_props(prop_ERpos, 'ERpos', tam.prop.interv, 'All', chemo.prop.interv)
+    e1t <- treattumor_props(prop_ERpos, 'ERpos', tam.prop.interv, 'All', chemo.prop.interv)
+    tx <- data.frame(SSno=c(rep(1, 3),
+                            rep(2, 4),
+                            rep(3, 3),
+                            rep(4, 4)),
+                     SSid=c(rep('Early.ER-', 3),
+                            rep('Early.ER+', 4),
+                            rep('Advanced.ER-', 3),
+                            rep('Advanced.ER+', 4)),
+                     txSSno=1:14,
+                     txSSid=rep(c('Tamoxifen', 'Chemo', 'None', 'Tamoxifen+Chemo',
+                                  'Tamoxifen', 'Chemo', 'None'), 2),
+                     txHR=rep(c(0.7, 0.775, 1, 0.5425, 0.7, 0.775, 1), 2),
+                     control=c(e0t, a0t),
+                     intervention=c(e1t, a1t),
+                     stringsAsFactors=FALSE)
+    reshape::sort_df(subset(tx, txSSid %in% c('None', 'Tamoxifen')), var=c('SSno', 'txSSid'))
+    set.seed(98103)
+    simpolicies(scenarios=pol,
+                naturalhist=nh,
+                treatinfo=tx,
+                agesource='Standard',
+                minage=30,
+                maxage=49,
+                incsource='Uganda',
+                mortsource='Uganda',
+                futimes=c(10, 20),
+                returnstats='mean',
+                popsize=100000,
+                sims=5)
+}
+
+################################################################################
+# Interactive testing to reproduce comparisons of E0 vs E9
+################################################################################
+if(FALSE){
+    prop_ERpos <- 0.41
+    surv.adv <- 0.35
+    surv.early <- 0.69
+    prop_a0 <- 0.78
+    prop_a1 <- 0.35
+    prop_s <- 1-prop_a1/prop_a0
+    tam.prop.control <- 0
+    chemo.prop.control <- 0
+    tam.prop.interv <- 1
+    chemo.prop.interv <- 1
+    m.a <- exp.rate(surv.adv, year=5)
+    m.e <- exp.rate(surv.early, year=5)
+    pol <- data.frame(num=1:2,
+                      id=c('control', 'intervention'),
+                      name=c('Control', 'Intervention'),
+                      pairnum=if(prop_s==0) c(NA, NA) else c(NA, 1),
+                      earlydetHR=c(1, 1-prop_s),
+                      stringsAsFactors=FALSE)
+    nh <- compile_naturalhist(prop_adv=prop_a0, 
+                              mortrates=c(Early=m.e, Advanced=m.a),
+                              subgroup_probs=c('ER-'=1-prop_ERpos, 'ER+'=prop_ERpos))
+    a0t <- treattumor_props(prop_ERpos, 'All', tam.prop.control, 'All', chemo.prop.control)
+    e0t <- treattumor_props(prop_ERpos, 'All', tam.prop.control, 'All', chemo.prop.control)
+    a1t <- treattumor_props(prop_ERpos, 'ERpos', tam.prop.interv, 'ERnegERposAdv', chemo.prop.interv)
+    e1t <- treattumor_props(prop_ERpos, 'ERpos', tam.prop.interv, 'ERnegERposAdv', chemo.prop.interv)
+    tx <- data.frame(SSno=c(rep(1, 3),
+                            rep(2, 4),
+                            rep(3, 3),
+                            rep(4, 4)),
+                     SSid=c(rep('Early.ER-', 3),
+                            rep('Early.ER+', 4),
+                            rep('Advanced.ER-', 3),
+                            rep('Advanced.ER+', 4)),
+                     txSSno=1:14,
+                     txSSid=rep(c('Tamoxifen', 'Chemo', 'None', 'Tamoxifen+Chemo',
+                                  'Tamoxifen', 'Chemo', 'None'), 2),
+                     txHR=rep(c(0.7, 0.775, 1, 0.5425, 0.7, 0.775, 1), 2),
+                     control=c(e0t, a0t),
+                     intervention=c(e1t, a1t),
+                     stringsAsFactors=FALSE)
+    tx <- within(tx, {
+                     txHR[grepl('ER[-]', SSid) & txSSid == 'Tamoxifen'] <- 1
+                     txHR[grepl('ER[-]', SSid) & txSSid == 'Tamoxifen+Chemo'] <- 1
+                     intervention[SSid == 'Early.ER+' & txSSid == 'Tamoxifen'] <- prop_ERpos
+                     intervention[SSid == 'Early.ER+' & txSSid == 'Tamoxifen+Chemo'] <- 0
+                     })
+    set.seed(98103)
+    simpolicies(scenarios=pol,
+                naturalhist=nh,
+                treatinfo=tx,
+                agesource='Standard',
+                minage=30,
+                maxage=49,
+                incsource='Uganda',
+                mortsource='Uganda',
+                futimes=c(10, 20),
+                returnstats='mean',
+                popsize=100000,
+                sims=10)
+}
