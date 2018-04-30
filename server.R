@@ -467,18 +467,19 @@ if(FALSE){
                      stringsAsFactors=FALSE)
     reshape::sort_df(subset(tx, txSSid %in% c('None', 'Tamoxifen')), var=c('SSno', 'txSSid'))
     set.seed(98103)
-    simpolicies(scenarios=pol,
-                naturalhist=nh,
-                treatinfo=tx,
-                agesource='Standard',
-                minage=30,
-                maxage=49,
-                incsource='Uganda',
-                mortsource='Uganda',
-                futimes=c(10, 20),
-                returnstats='mean',
-                popsize=100000,
-                sims=5)
+    uganda_default <- simpolicies(scenarios=pol,
+                                  naturalhist=nh,
+                                  treatinfo=tx,
+                                  agesource='Standard',
+                                  minage=30,
+                                  maxage=49,
+                                  incsource='Uganda',
+                                  mortsource='Uganda',
+                                  futimes=c(10, 20),
+                                  returnstats='mean',
+                                  popsize=100000,
+                                  sims=100)
+    knitr::kable(uganda_default[['10']])
 }
 
 ################################################################################
